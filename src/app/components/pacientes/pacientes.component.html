@@ -1,0 +1,45 @@
+<div class="container-fluid mt-4">
+    <h2>Pacientes</h2>
+    <div class="d-flex justify-content-between mb-3">
+        <button class="btn btn-success"><i class="fa fa-plus"></i>
+            Registrar Pacientes
+        </button>
+    </div>
+    <table class="table table-striped table-bordered mt-3">
+        <thead class="table-dark">
+            <tr style="text-align: center;">
+                <th scope="col">#</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Edad</th>
+                <th scope="col">Peso</th>
+                <th scope="col">Estatura</th>
+                <th scope="col">IMC</th>
+                <th scope="col">Email</th>
+                <th scope="col">Teléfono</th>
+                <th scope="col">Dirección</th>
+                <th scope="col">Expediente</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="text-align: center;" *ngFor="let paciente of listaPacientes; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ paciente.nombre }}</td>
+                <td>{{ paciente.edad }}</td>
+                <td>{{ paciente.peso | number:'1.1-2'}} kg</td>
+                <td>{{ paciente.estatura | number:'1.2-2'}} m</td>
+                <td>{{ paciente.imc | number:'1.0-2'}}</td>
+                <td>{{ paciente.email }}</td>
+                <td>{{ paciente.telefono }}</td>
+                <td>{{ paciente.direccion }}</td>
+                <td>{{ paciente.numExpediente }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm me-1 ms-1">
+                        <i class="fa fa-edit"></i> Editar</button>
+                    <button class="btn btn-danger btn-sm ms-1">
+                        <i class="fa fa-trash"></i> Eliminar</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
