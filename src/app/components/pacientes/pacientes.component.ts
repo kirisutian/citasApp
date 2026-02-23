@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PacienteResponse } from '../../models/Paciente.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { group } from '@angular/animations';
@@ -11,7 +11,7 @@ declare var bootstrap: any;
   templateUrl: './pacientes.component.html',
   styleUrl: './pacientes.component.css'
 })
-export class PacientesComponent {
+export class PacientesComponent implements OnInit, AfterViewInit {
 
   listaPacientes: PacienteResponse[] = [
     {
@@ -43,6 +43,7 @@ export class PacientesComponent {
   isEditMode: boolean = false;
   selectedPaciente: PacienteResponse | null = null;
   showActions: boolean = false;
+  modalText: string = 'Registrar Paciente';
 
   @ViewChild('pacienteModalRef')
   pacienteModalEl!: ElementRef;
@@ -53,15 +54,42 @@ export class PacientesComponent {
   constructor(private fb: FormBuilder) {
     this.pacienteForm = this.fb.group({
       id: [null],
-      nombre: ['', [Validators.required, Validators.maxLength(50)], Validators.minLength(1)],
-      apellidoPaterno: ['', [Validators.required, Validators.maxLength(50)], Validators.minLength(1)],
-      apellidoMaterno: ['', [Validators.required, Validators.maxLength(50)], Validators.minLength(1)],
-      edad: [null, [Validators.required, Validators.min(1)], Validators.max(100)],
-      peso: [null, [Validators.required, Validators.min(0.1)], Validators.max(200)],
-      estatura: [null, [Validators.required, Validators.min(1)], Validators.max(2)],
-      email: ['', [Validators.required, Validators.maxLength(100)], Validators.minLength(1), Validators.email],
-      telefono: ['', Validators.maxLength(10), Validators.minLength(10)],
-      direccion: ['', Validators.maxLength(150), Validators.minLength(1)],
+      nombre: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1)]],
+      apellidoPaterno: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1)]],
+      apellidoMaterno: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1)]],
+      edad: [null, [Validators.required, Validators.min(1), Validators.max(100)]],
+      peso: [null, [Validators.required, Validators.min(0.1), Validators.max(200)]],
+      estatura: [null, [Validators.required, Validators.min(1), Validators.max(2)]],
+      email: ['', [Validators.required, Validators.maxLength(100), Validators.minLength(1), Validators.email]],
+      telefono: ['', [Validators.maxLength(10), Validators.minLength(10)]],
+      direccion: ['', [Validators.maxLength(150), Validators.minLength(1)]],
     });
+  }
+
+  ngOnInit(): void {
+    //throw new Error('Method not implemented.');
+  }
+
+  ngAfterViewInit(): void {
+    this.modalInstance = new bootstrap.Modal(this.pacienteModalEl.nativeElement, { keyboard: false });
+    this.pacienteModalEl.nativeElement.addEventListener('hidden.bs.modal', () => {
+      this.resetForm()
+    });
+  }
+
+  onSubmit(): void {
+
+  }
+
+  resetForm(): void {
+    this.isEditMode = false;
+    this.selectedPaciente = null;
+    this.pacienteForm.reset();
+  }
+
+  toggleForm(): void {
+    this.resetForm();
+    this.modalText = 'Registrar Paciente';
+    this.modalInstance.show();
   }
 }

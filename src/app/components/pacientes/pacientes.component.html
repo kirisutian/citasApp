@@ -1,7 +1,7 @@
 <div class="container-fluid mt-4">
     <h2>Pacientes</h2>
     <div class="d-flex justify-content-between mb-3">
-        <button class="btn btn-success"><i class="fa fa-plus"></i>
+        <button (click)="toggleForm()" class="btn btn-success"><i class="fa fa-plus"></i>
             Registrar Pacientes
         </button>
     </div>
@@ -42,4 +42,83 @@
             </tr>
         </tbody>
     </table>
+</div>
+
+<div class="modal fade" #pacienteModalRef tabindex="-1" aria-labelledby="pacienteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="pacienteModalLabel">{{ modalText }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="pacienteForm" (ngSubmit)="onSubmit()">
+
+                    <!-- Nombres -->
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input class="form-control" formControlName="nombre">
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Apellido Paterno</label>
+                            <input class="form-control" formControlName="apellidoPaterno">
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Apellido Materno</label>
+                            <input class="form-control" formControlName="apellidoMaterno">
+                        </div>
+                    </div>
+
+                    <!-- Datos físicos -->
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Edad</label>
+                            <input type="number" class="form-control" formControlName="edad">
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Peso (Kg)</label>
+                            <input type="number" class="form-control" formControlName="peso">
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Estatura (m)</label>
+                            <input type="number" class="form-control" formControlName="estatura">
+                        </div>
+                    </div>
+
+                    <!-- Contacto -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" formControlName="email">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input class="form-control" formControlName="telefono">
+                        </div>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="mb-3">
+                        <label class="form-label">Dirección</label>
+                        <input class="form-control" formControlName="direccion">
+                    </div>
+
+                    <!-- Botón -->
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-success" [disabled]="pacienteForm.invalid">
+                            Guardar
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
