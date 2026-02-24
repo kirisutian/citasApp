@@ -3,6 +3,7 @@ import { PacienteRequest, PacienteResponse } from '../../models/Paciente.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { group } from '@angular/animations';
 import { PacientesService } from '../../services/pacientes.service';
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -93,6 +94,7 @@ export class PacientesComponent implements OnInit, AfterViewInit {
         next: registro => {
           const index: number = this.listaPacientes.findIndex(p => p.id === this.selectedPaciente!.id);
           if(index !== -1) this.listaPacientes[index] = registro;
+          Swal.fire('Actualizado', 'Paciente actualizado correctamente', 'success');
           this.modalInstance.hide();
         }
       });
@@ -101,6 +103,7 @@ export class PacientesComponent implements OnInit, AfterViewInit {
       this.pacienteService.postPaciente(pacienteData).subscribe({
         next: registro => {
           this.listaPacientes.push(registro);
+          Swal.fire('Registrado', 'Paciente registrado correctamente', 'success');
           this.modalInstance.hide();
         }
       });
@@ -108,9 +111,21 @@ export class PacientesComponent implements OnInit, AfterViewInit {
   }
 
   deletePaciente(idPaciente: number): void {
-    this.pacienteService.deletePaciente(idPaciente).subscribe({
-      next: () => {
-        this.listaPacientes = this.listaPacientes.filter(p => p.id !== idPaciente);
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'El paciente será eliminado permanentemente',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if(result.isConfirmed) {
+        this.pacienteService.deletePaciente(idPaciente).subscribe({
+          next: () => {
+            this.listaPacientes = this.listaPacientes.filter(p => p.id !== idPaciente);
+            Swal.fire('Eliminado', 'Paciente eliminado correctamente', 'success');
+          }
+        });
       }
     });
   }
