@@ -34,9 +34,9 @@
                 <td>{{ paciente.direccion }}</td>
                 <td>{{ paciente.numExpediente }}</td>
                 <td>
-                    <button class="btn btn-primary btn-sm me-1 ms-1">
+                    <button class="btn btn-primary btn-sm me-1 ms-1" (click)="editPaciente(paciente)">
                         <i class="fa fa-edit"></i> Editar</button>
-                    <button class="btn btn-danger btn-sm ms-1">
+                    <button class="btn btn-danger btn-sm ms-1" (click)="deletePaciente(paciente.id)">
                         <i class="fa fa-trash"></i> Eliminar</button>
                 </td>
             </tr>
@@ -100,7 +100,7 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Teléfono</label>
-                            <input class="form-control" formControlName="telefono">
+                            <input class="form-control" formControlName="telefono" minlength="10" maxlength="10">
                         </div>
                     </div>
 

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { PacienteResponse } from '../../models/Paciente.model';
+import { PacienteRequest, PacienteResponse } from '../../models/Paciente.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { group } from '@angular/animations';
 
@@ -61,8 +61,8 @@ export class PacientesComponent implements OnInit, AfterViewInit {
       peso: [null, [Validators.required, Validators.min(0.1), Validators.max(200)]],
       estatura: [null, [Validators.required, Validators.min(1), Validators.max(2)]],
       email: ['', [Validators.required, Validators.maxLength(100), Validators.minLength(1), Validators.email]],
-      telefono: ['', [Validators.maxLength(10), Validators.minLength(10)]],
-      direccion: ['', [Validators.maxLength(150), Validators.minLength(1)]],
+      telefono: ['', [Validators.required, Validators.maxLength(10), Validators.minLength(10)]],
+      direccion: ['', [Validators.required, Validators.maxLength(150), Validators.minLength(1)]],
     });
   }
 
@@ -77,10 +77,6 @@ export class PacientesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onSubmit(): void {
-
-  }
-
   resetForm(): void {
     this.isEditMode = false;
     this.selectedPaciente = null;
@@ -91,5 +87,59 @@ export class PacientesComponent implements OnInit, AfterViewInit {
     this.resetForm();
     this.modalText = 'Registrar Paciente';
     this.modalInstance.show();
+  }
+
+  editPaciente(paciente: PacienteResponse): void {
+    this.isEditMode = true;
+    this.selectedPaciente = paciente;
+    this.modalText = 'Editando Paciente: ' + paciente.nombre;
+
+    this.pacienteForm.patchValue({...paciente});
+    this.modalInstance.show();
+  }
+
+  onSubmit(): void {
+    if(this.pacienteForm.invalid) return;
+
+    const pacienteData: PacienteRequest = this.pacienteForm.value;
+
+    if(this.isEditMode && this.selectedPaciente) {
+      // ACTUALIZANDO
+      let pacienteActualizado: PacienteResponse = {
+        "id": this.selectedPaciente.id,
+        "nombre": this.selectedPaciente.nombre,
+        "edad": pacienteData.edad,
+        "peso": pacienteData.peso,
+        "estatura": pacienteData.estatura,
+        "imc": (pacienteData.peso / (pacienteData.estatura * pacienteData.estatura)),
+        "email": pacienteData.email,
+        "telefono": pacienteData.telefono,
+        "direccion": pacienteData.direccion,
+        "numExpediente": this.selectedPaciente.numExpediente
+      }
+      const index: number = this.listaPacientes.findIndex(p => p.id === this.selectedPaciente!.id);
+      if(index !== -1) this.listaPacientes[index] = pacienteActualizado;
+      this.modalInstance.hide();
+    } else {
+      // REGISTRANDO
+      let nuevoPaciente: PacienteResponse = {
+        "id": 100,
+        "nombre": pacienteData.nombre + ' ' + pacienteData.apellidoPaterno + ' ' + pacienteData.apellidoMaterno,
+        "edad": pacienteData.edad,
+        "peso": pacienteData.peso,
+        "estatura": pacienteData.estatura,
+        "imc": (pacienteData.peso / (pacienteData.estatura * pacienteData.estatura)),
+        "email": pacienteData.email,
+        "telefono": pacienteData.telefono,
+        "direccion": pacienteData.direccion,
+        "numExpediente": 'XXXXXXXXXXXXXXXXXXXX'
+      }
+      this.listaPacientes.push(nuevoPaciente);
+      this.modalInstance.hide();
+    }
+  }
+
+  deletePaciente(idPaciente: number): void {
+    this.listaPacientes = this.listaPacientes.filter(p => p.id !== idPaciente);
   }
 }
