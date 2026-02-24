@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 import { PacienteRequest, PacienteResponse } from '../../models/Paciente.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { group } from '@angular/animations';
+import { PacientesService } from '../../services/pacientes.service';
 
 declare var bootstrap: any;
 
@@ -13,32 +14,7 @@ declare var bootstrap: any;
 })
 export class PacientesComponent implements OnInit, AfterViewInit {
 
-  listaPacientes: PacienteResponse[] = [
-    {
-      "id": 10,
-      "nombre": "Juan Pérez Gómez",
-      "edad": 30,
-      "peso": 75.5,
-      "estatura": 1.75,
-      "imc": 24.653061224489797,
-      "email": "juan.perez@gmail.com",
-      "telefono": "5512345678",
-      "direccion": "Av. Reforma 123, Colonia Centro, Ciudad de México",
-      "numExpediente": "5X5X1X2X3X4X5X6X7X8X"
-    },
-    {
-      "id": 11,
-      "nombre": "Manuel Gómez Sánchez",
-      "edad": 25,
-      "peso": 85,
-      "estatura": 1.75,
-      "imc": 26.653061224489797,
-      "email": "manuel.gomez@gmail.com",
-      "telefono": "5512345679",
-      "direccion": "Av. Reforma 124, Colonia Centro, Ciudad de México",
-      "numExpediente": "5X5X1X2X3X4X5X6X7X9X"
-    }
-  ];
+  listaPacientes: PacienteResponse[] = [];
 
   isEditMode: boolean = false;
   selectedPaciente: PacienteResponse | null = null;
@@ -51,7 +27,7 @@ export class PacientesComponent implements OnInit, AfterViewInit {
 
   private modalInstance!: any;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private pacienteService: PacientesService) {
     this.pacienteForm = this.fb.group({
       id: [null],
       nombre: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1)]],
@@ -67,13 +43,21 @@ export class PacientesComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    //throw new Error('Method not implemented.');
+    this.listarPacientes();
   }
 
   ngAfterViewInit(): void {
     this.modalInstance = new bootstrap.Modal(this.pacienteModalEl.nativeElement, { keyboard: false });
     this.pacienteModalEl.nativeElement.addEventListener('hidden.bs.modal', () => {
       this.resetForm()
+    });
+  }
+
+  listarPacientes(): void {
+    this.pacienteService.getPacientes().subscribe({
+      next: resp => {
+        this.listaPacientes = resp;
+      }
     });
   }
 
@@ -105,41 +89,29 @@ export class PacientesComponent implements OnInit, AfterViewInit {
 
     if(this.isEditMode && this.selectedPaciente) {
       // ACTUALIZANDO
-      let pacienteActualizado: PacienteResponse = {
-        "id": this.selectedPaciente.id,
-        "nombre": this.selectedPaciente.nombre,
-        "edad": pacienteData.edad,
-        "peso": pacienteData.peso,
-        "estatura": pacienteData.estatura,
-        "imc": (pacienteData.peso / (pacienteData.estatura * pacienteData.estatura)),
-        "email": pacienteData.email,
-        "telefono": pacienteData.telefono,
-        "direccion": pacienteData.direccion,
-        "numExpediente": this.selectedPaciente.numExpediente
-      }
-      const index: number = this.listaPacientes.findIndex(p => p.id === this.selectedPaciente!.id);
-      if(index !== -1) this.listaPacientes[index] = pacienteActualizado;
-      this.modalInstance.hide();
+      this.pacienteService.putPaciente(pacienteData, this.selectedPaciente.id).subscribe({
+        next: registro => {
+          const index: number = this.listaPacientes.findIndex(p => p.id === this.selectedPaciente!.id);
+          if(index !== -1) this.listaPacientes[index] = registro;
+          this.modalInstance.hide();
+        }
+      });
     } else {
       // REGISTRANDO
-      let nuevoPaciente: PacienteResponse = {
-        "id": 100,
-        "nombre": pacienteData.nombre + ' ' + pacienteData.apellidoPaterno + ' ' + pacienteData.apellidoMaterno,
-        "edad": pacienteData.edad,
-        "peso": pacienteData.peso,
-        "estatura": pacienteData.estatura,
-        "imc": (pacienteData.peso / (pacienteData.estatura * pacienteData.estatura)),
-        "email": pacienteData.email,
-        "telefono": pacienteData.telefono,
-        "direccion": pacienteData.direccion,
-        "numExpediente": 'XXXXXXXXXXXXXXXXXXXX'
-      }
-      this.listaPacientes.push(nuevoPaciente);
-      this.modalInstance.hide();
+      this.pacienteService.postPaciente(pacienteData).subscribe({
+        next: registro => {
+          this.listaPacientes.push(registro);
+          this.modalInstance.hide();
+        }
+      });
     }
   }
 
   deletePaciente(idPaciente: number): void {
-    this.listaPacientes = this.listaPacientes.filter(p => p.id !== idPaciente);
+    this.pacienteService.deletePaciente(idPaciente).subscribe({
+      next: () => {
+        this.listaPacientes = this.listaPacientes.filter(p => p.id !== idPaciente);
+      }
+    });
   }
 }
