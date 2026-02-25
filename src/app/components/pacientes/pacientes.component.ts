@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { group } from '@angular/animations';
 import { PacientesService } from '../../services/pacientes.service';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
+import { Roles } from '../../constants/Roles';
 
 declare var bootstrap: any;
 
@@ -28,23 +30,28 @@ export class PacientesComponent implements OnInit, AfterViewInit {
 
   private modalInstance!: any;
 
-  constructor(private fb: FormBuilder, private pacienteService: PacientesService) {
+  constructor(private fb: FormBuilder, private pacienteService: PacientesService,
+    private authService: AuthService
+  ) {
     this.pacienteForm = this.fb.group({
       id: [null],
-      nombre: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1)]],
-      apellidoPaterno: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1)]],
-      apellidoMaterno: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1)]],
+      nombre: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1), Validators.pattern(/^(?!\s*$).+/)]],
+      apellidoPaterno: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1), Validators.pattern(/^(?!\s*$).+/)]],
+      apellidoMaterno: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(1), Validators.pattern(/^(?!\s*$).+/)]],
       edad: [null, [Validators.required, Validators.min(1), Validators.max(100)]],
       peso: [null, [Validators.required, Validators.min(0.1), Validators.max(200)]],
       estatura: [null, [Validators.required, Validators.min(1), Validators.max(2)]],
       email: ['', [Validators.required, Validators.maxLength(100), Validators.minLength(1), Validators.email]],
-      telefono: ['', [Validators.required, Validators.maxLength(10), Validators.minLength(10)]],
+      telefono: ['', [Validators.required, Validators.maxLength(10), Validators.minLength(10), Validators.pattern(/^[0-9]{10}$/)]],
       direccion: ['', [Validators.required, Validators.maxLength(150), Validators.minLength(1)]],
     });
   }
 
   ngOnInit(): void {
     this.listarPacientes();
+    if(this.authService.hasRole(Roles.ADMIN)) {
+      this.showActions = true;
+    }
   }
 
   ngAfterViewInit(): void {
